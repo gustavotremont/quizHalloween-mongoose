@@ -3,15 +3,14 @@ const mongoose = require("mongoose");
 const objectSchema = {
     _id: mongoose.Schema.Types.ObjectId,
     score: Number,
-    correctAnwser: Number,
-    incorrectAnwser: Number,
-    date: Date,
-    // id_user: {
-    //     type: Schema.ObjectId, 
-    //     ref: 'user' 
-    // }
-    id_user: String
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    id_user: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'user' 
+    }
 }
-
 const gameSchema = mongoose.Schema(objectSchema)
 module.exports = mongoose.model('Game', gameSchema)
