@@ -7,7 +7,11 @@ const objectSchema = {
         match: [/.+\@.+\..+/, 'Por favor ingrese un correo válido'] // <- Validación regexp para correo
     },
     password: String,
-    nickname: String
+    nickname: String,
+    games: [{
+        type: mongoose.Schema.ObjectId, 
+        ref: 'game'
+    }]
 }
 
 const userSchema = mongoose.Schema(objectSchema)
