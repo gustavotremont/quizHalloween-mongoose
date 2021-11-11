@@ -7,8 +7,8 @@ const GameResult = require("./models/gameResultdb.js")
 const url = "mongodb://localhost:27017/quizProyectoHalloween";
 
 /////////////////////////////////////CONEXION
-const mongoConnect = async() => {
-    await mongoose.connect(url, function(err){
+const mongoConnect = async () => {
+    mongoose.connect(url, function(err){
         if (err) throw err;
         console.log("Conexión correcta");
     });
@@ -30,7 +30,7 @@ const createUser = async(email, password, nickname) => {
     mongoose.disconnect();
 }
 
-createUser('robertocarlos@gmail.com', '123456789', 'muchaputeria')
+// createUser('robertocarlos@gmail.com', '123456789', 'muchaputeria')
 
 /////////////////////////////////////QUIZ ATRIFICIAL
 
@@ -156,21 +156,21 @@ const quiz = [
     ]
     }
 ];
+const newQuiz = quiz.map( ({question, correct_answer, incorrect_answers}) => {
+    return {
+        question: question,
+        selectAnswer: correct_answer,
+        correctAnswer: correct_answer,
+        incorrectAnswers: incorrect_answers,
+        correct: true
+    }
+});
 
 // /////////////////////////////////////CREACION DE PARTIDA Y RESULTADO
 
 const createGame = async(quiz, score, id_user) => {
-    mongoConnect();
-    const newQuiz = quiz.map( ({question, correct_answer, incorrect_answers}) => {
-        return {
-            question: question,
-            selectAnswer: correct_answer,
-            correctAnswer: correct_answer,
-            incorrectAnswers: incorrect_answers,
-            correct: true
-        }
-    });
-
+    await mongoConnect();
+    
     let game = {
         _id: new mongoose.Types.ObjectId(),
         score: score,
@@ -182,20 +182,22 @@ const createGame = async(quiz, score, id_user) => {
 
     let gameResult = {
         _id: new mongoose.Types.ObjectId(),
-        questions: newQuiz,
+        questions: quiz,
         id_game: currectGame._id
     };
 
     let newGameResult = new GameResult (gameResult);
     await newGameResult.save();
 
-    const currectUser = await User.findById(currectGame.id_user)
-    currectUser.games = currectUser.games.concat(currectGame._id);
-    await currectUser.save()
+    await User.findByIdAndUpdate(currectGame.id_user, { "$push": { "games": currectGame._id}});
+
+    // const currectUser = await User.findById(currectGame.id_user)
+    // currectUser.games = currectUser.games.concat(currectGame._id);
+    // await currectUser.save()
     mongoose.disconnect();
 }
 
-createGame(quiz, 10, '618b9d6d4329ac8f3699c33d')
+createGame(newQuiz, 3, '618bc378a11777c17c5a3e71')
 
 //   Game.find({
 //         id_user: "618ad3487d1a07e75d6a0cda"
